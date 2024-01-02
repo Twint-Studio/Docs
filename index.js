@@ -1,26 +1,24 @@
+const fs = require('fs').promises;
 const marked = require('marked');
 const yaml = require('js-yaml');
 const path = require('path');
-const fs = require('fs');
 
 const srcPath = path.join(__dirname, 'pages');
 const templatesPath = path.join(__dirname, 'templates');
-
 const layout = fs.readFileSync(path.join(templatesPath, 'layout.html'), 'utf-8');
 
-function getFileList(dirName, filter, depth = 0) {
+async function getFileList(dirName, filter, depth = 0) {
+    const items = await fs.readdir(dirName, { withFileTypes: true });
     let files = [];
-    const items = fs.readdirSync(dirName, { withFileTypes: true });
 
     for (const item of items) {
         const itemPath = path.join(dirName, item.name);
 
         if (item.isDirectory() && filter.recursively) {
-            if (depth >= filter.maxDepth) continue;
-            if (filter.exclusion && filter.exclusion.includes(item.name)) continue;
+            if (depth >= filter.maxDepth || (filter.exclusion && filter.exclusion.includes(item.name))) continue;
 
-            const subFiles = getFileList(itemPath, filter, depth + 1);
-            files = [...files, ...subFiles];
+            const subFiles = await getFileList(itemPath, filter, depth + 1);
+            files.push(...subFiles);
         } else if (item.name.endsWith(filter.type)) files.push(itemPath);
     }
 
@@ -40,7 +38,7 @@ function extractMetadataAndContent(content) {
     return { metadata: '', body: content.trim() };
 }
 
-function generateHtmlOutput(file, html) {
+async function generateHtmlOutput(file, html) {
     const relativePath = path.relative(process.cwd(), file);
     const subfolders = path.dirname(relativePath).replace(/(^|\/)pages/, '');
 
@@ -48,47 +46,44 @@ function generateHtmlOutput(file, html) {
     const outputDir = path.join('dist', subfolders);
     const outputPath = path.join(outputDir, htmlFileName);
 
-    if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
+    await fs.mkdir(outputDir, { recursive: true });
+    await fs.writeFile(outputPath, html);
 
-    fs.writeFileSync(outputPath, html);
     console.log(`HTML file saved to: ${outputPath}`);
 }
 
-const documents = getFileList(srcPath, { type: ".md", recursively: true });
+(async () => {
+    const documents = await getFileList(srcPath, { type: ".md", recursively: true });
 
-documents.forEach(file => {
-    const filePath = path.join(file);
-    const content = fs.readFileSync(filePath, 'utf-8');
+    for (const file of documents) {
+        const filePath = path.join(file);
+        const content = await fs.readFile(filePath, 'utf-8');
 
-    const { metadata, body } = extractMetadataAndContent(content);
-    const parsedMetadata = yaml.load(metadata);
+        const { metadata, body } = extractMetadataAndContent(content);
+        const parsedMetadata = yaml.load(metadata) || {};
 
-    let html = layout;
+        let html = layout;
 
-    const includeNavBar = !/\/pages\/index\.md$/.test(file);
-
-    const navigationBar = includeNavBar
-        ? `
+        const includeNavBar = !/\/pages\/index\.md$/.test(file);
+        const navigationBar = includeNavBar ? `
             <div class="nav-item left">
                 <a href="{{ home }}">Home</a>
                 <a href="{{ started }}">Get Started</a>
                 <a href="{{ navigation }}">Site Navigation</a>
                 <a href="{{ faq }}">FAQ</a>
-            </div>`
-        : '';
+            </div>` : '';
 
-    html = html.replace('{{ navigationBar }}', navigationBar);
+        html = html.replace('{{ navigationBar }}', navigationBar);
 
-    if (parsedMetadata && typeof parsedMetadata === 'object') {
-        Object.entries(parsedMetadata).forEach(([key, value]) => {
+        for (const [key, value] of Object.entries(parsedMetadata)) {
             const placeholder = `{{ ${key} }}`;
             html = html.split(placeholder).join(value);
-        });
+        }
+
+        html = html.replace('{{ content }}', marked.parse(body));
+
+        await generateHtmlOutput(file, html);
     }
 
-    html = html.replace('{{ content }}', marked.parse(body));
-
-    generateHtmlOutput(file, html);
-});
-
-console.log('Static site generated successfully!');
+    console.log('Static site generated successfully!');
+})();
