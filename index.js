@@ -45,7 +45,7 @@ function generateHtmlOutput(file, html) {
     const subfolders = path.dirname(relativePath).replace(/(^|\/)pages/, '');
 
     const htmlFileName = path.basename(file, '.md') + '.html';
-    const outputDir = path.join('dist', subfolders ? `wiki/${subfolders}` : "");
+    const outputDir = path.join('dist', subfolders);
     const outputPath = path.join(outputDir, htmlFileName);
 
     if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
