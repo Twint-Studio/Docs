@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/twint-studio/Guide#readme",
   "dependencies": {
+    "highlight.js": "^11.9.0",
     "js-yaml": "^4.1.0",
     "marked": "^11.1.1"
   }

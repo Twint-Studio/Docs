@@ -1,9 +1,12 @@
 ---
-project: TS
-title: Guide
+name: Docs
 ---
 
-# Lamar
-A bot for all your needs! May it be moderation, info on things from your server, or even random pictures of ducks. We have it all!
+# Docs
 
-[Wiki](/wiki/lamar/index.html)
+<!-- `[TOC]` -->
+[TOC]
+
+## [OpenAPI](/openapi)
+
+A re-implementation of the [API](https://api.serversmp.xyz) while having a developer friendly mindset and independence from the closed source version.

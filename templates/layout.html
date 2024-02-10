@@ -3,29 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/assets/css/style.min.css">
-    <link rel="stylesheet" href="/assets/css/stackoverflow-dark.min.css">
-    <script src="/assets/js/highlight.min.js"></script>
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="/assets/packages/highlight/highlight.min.css">
+    <script src="/assets/packages/highlight/highlight.min.js"></script>
     <script>hljs.highlightAll();</script>
-    <title>{{ project }} - {{ title }}</title>
+    <title>{{ name }}</title>
 </head>
 <body>
 
     <div class="nav">
         <a href="/index.html" class="nav-header">
-            <img src="https://serversmp.xyz/img/icon.png">
-            <h1>Guide</h1>
+            <img src="https://avatars.githubusercontent.com/u/155397442?s=200&v=4">
+            <h1>Docs</h1>
         </a>
-        {{ navigationBar }}
     </div>
 
     <div class="container">
-        <main>
-            {{ content }}
-
-            <!-- <button class="button button-secondary">Previous</button> -->
-            <!-- <button class="button button-secondary">Next</button> -->
-        </main>
+        {{ content }}
     </div>
 
 </body>
