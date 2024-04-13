@@ -1,22 +1,23 @@
 {
-  "name": "guide",
+  "name": "docs",
   "version": "1.0.0",
-  "description": "A guide for projects",
+  "description": "Documentation for projects",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/twint-studio/Guide.git"
+    "url": "git+https://github.com/twint-studio/Docs.git"
   },
   "author": "Prince527",
   "license": "AGPL-3.0",
   "bugs": {
-    "url": "https://github.com/twint-studio/Guide/issues"
+    "url": "https://github.com/twint-studio/Docs/issues"
   },
-  "homepage": "https://github.com/twint-studio/Guide#readme",
+  "homepage": "https://github.com/twint-studio/Docs#readme",
   "dependencies": {
+    "cheerio": "^1.0.0-rc.12",
     "highlight.js": "^11.9.0",
     "js-yaml": "^4.1.0",
     "marked": "^11.1.1"

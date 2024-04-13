@@ -1,12 +1,13 @@
-const hljs = require('highlight.js');
-const marked = require('marked');
-const yaml = require('js-yaml');
-const path = require('path');
-const fs = require('fs');
+const hljs = require("highlight.js");
+const cheerio = require("cheerio");
+const marked = require("marked");
+const yaml = require("js-yaml");
+const path = require("path");
+const fs = require("fs");
 
-const srcPath = path.join(__dirname, 'pages');
-const templatesPath = path.join(__dirname, 'templates');
-const layout = fs.readFileSync(path.join(templatesPath, 'layout.html'), 'utf-8');
+const srcPath = path.join(__dirname, "pages");
+const templatesPath = path.join(__dirname, "templates");
+const layout = fs.readFileSync(path.join(templatesPath, "layout.html"), "utf-8");
 
 function getFileList(dirName, filter, depth = 0) {
     const items = fs.readdirSync(dirName, { withFileTypes: true });
@@ -36,15 +37,15 @@ function extractMetadataAndContent(content) {
         return { metadata, body };
     }
 
-    return { metadata: '', body: content.trim() };
+    return { metadata: "", body: content.trim() };
 }
 
 function generateHtmlOutput(file, html) {
     const relativePath = path.relative(process.cwd(), file);
-    const subfolders = path.dirname(relativePath).replace(/(^|\/)pages/, '');
+    const subfolders = path.dirname(relativePath).replace(/(^|\/)pages/, "");
 
-    const htmlFileName = path.basename(file, '.md') + '.html';
-    const outputDir = path.join('dist', subfolders);
+    const htmlFileName = path.basename(file, ".md") + ".html";
+    const outputDir = path.join("dist", subfolders);
     const outputPath = path.join(outputDir, htmlFileName);
 
     if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
@@ -67,20 +68,48 @@ function extensionTOC(markdown) {
             headings.push({ level, text });
         }
 
-        let tocMarkdown = '';
+        let tocMarkdown = "";
         headings.forEach(heading => {
-            const indent = ' '.repeat((heading.level - 1) * 2);
-            tocMarkdown += `${indent}- [${heading.text}](#${heading.text.replace(/\s+/g, '-').toLowerCase()})\n`;
+            const indent = " ".repeat((heading.level - 1) * 2);
+            tocMarkdown += `${indent}- [${heading.text}](#${heading.text.replace(/\s+/g, "-").toLowerCase()})\n`;
         });
 
         return tocMarkdown;
     }
 
-    return markdown.replace(/\[TOC\]/gi, '[TOC]')
+    return markdown.replace(/\[TOC\]/gi, "[TOC]")
         .replace(/\[TOC\]/g, (match, offset, string) => {
             const isInCodeBlock = codeBlockRegex.test(string.slice(0, offset));
             return isInCodeBlock ? generateTOC(markdown) : match;
         });
+}
+
+function extensionFolder(markdown) {
+    const regex = /\[FILES:(.*?)\]/g;
+    let match;
+
+    while ((match = regex.exec(markdown)) !== null) {
+        const folderName = match[1];
+        const folderPath = path.join(__dirname, "pages", folderName);
+
+        const fileList = getFileList(folderPath, { type: "md", recursively: false });
+
+        const tocEntries = fileList.map(filePath => {
+            const name = path.basename(filePath, path.extname(filePath))
+            return `- [${name}](./${folderName}/${name.replace(" ", "%20")}.html)`
+        });
+
+        markdown = markdown.replace(match[0], tocEntries.join("\n"));
+    }
+
+    return markdown
+}
+
+function extensions(markdown) {
+    markdown = extensionTOC(markdown);
+    markdown = extensionFolder(markdown);
+
+    return markdown;
 }
 
 const renderer = new marked.Renderer();
@@ -104,7 +133,10 @@ renderer.code = function(code, language) {
 };
 
 renderer.heading = function (text, level) {
-    const anchor = text.replace(/\s+/g, '-').toLowerCase();
+    const title = cheerio.load(text)("*").text();
+
+    const anchor = title.replace(/\s+/g, "-").toLowerCase();
+
     return `<h${level} id="${anchor}"><a href="#${anchor}">#</a> ${text}</h${level}>`;
 };
 
@@ -113,7 +145,7 @@ marked.setOptions({ renderer: renderer });
 const documents = getFileList(srcPath, { type: ".md", recursively: true });
 for (const file of documents) {
     const filePath = path.join(file);
-    const content = fs.readFileSync(filePath, 'utf-8');
+    const content = fs.readFileSync(filePath, "utf-8");
 
     const { metadata, body } = extractMetadataAndContent(content);
     const parsedMetadata = yaml.load(metadata) || {};
@@ -125,9 +157,9 @@ for (const file of documents) {
         html = html.split(placeholder).join(value);
     }
 
-    html = html.replace('{{ content }}', marked.parse(extensionTOC(body)));
+    html = html.replace("{{ content }}", marked.parse(extensions(body)));
 
     generateHtmlOutput(file, html);
 }
 
-console.log('Static site generated successfully!');
+console.log("Static site generated successfully!");

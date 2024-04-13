@@ -222,6 +222,7 @@ body {
     max-width: 900px;
     margin: auto;
     margin-top: 1rem;
+    margin-bottom: 1rem;
 }
 
 .container {
@@ -259,6 +260,18 @@ body {
     padding: 0;
 }
 
+.container blockquote {
+    border-left: 4px solid rgba(255, 255, 255, 0.2);
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 0.5rem;
+    padding: .6em 1em;
+    margin: 0;
+}
+
+.container a {
+    color: var(--text-color-secondary);
+}
+
 .container h1,
 .container h2,
 .container h3,
@@ -276,7 +289,6 @@ body {
 .container h5 a,
 .container h6 a {
     text-decoration: none;
-    color: var(--text-color-secondary);
 }
 
 .text-center {
