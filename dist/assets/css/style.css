@@ -294,3 +294,66 @@ body {
 .text-center {
     text-align: center;
 }
+
+.card {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background-color: var(--forground-color);
+    border-radius: 0.5rem;
+    transition: all 0.2s;
+    margin-bottom: 1rem;
+    padding: 1.5rem;
+}
+
+.card:hover {
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.card-title {
+    color: var(--text-color-primary);
+    margin-bottom: 0.75rem;
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-top: 0;
+}
+
+.card-content {
+    color: var(--text-color-secondary);
+    line-height: 1.6;
+}
+
+.card-primary {
+    border-color: var(--primary);
+}
+
+.card-secondary {
+    border-color: var(--secondary);
+}
+
+.card-accent {
+    border-color: var(--accent);
+}
+
+.card-info {
+    border-color: var(--info);
+}
+
+.card-success {
+    border-color: var(--success);
+}
+
+.card-warning {
+    border-color: var(--warning);
+}
+
+.card-error {
+    border-color: var(--error);
+}
+
+.cards-grid {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    margin: 1rem 0;
+    display: grid;
+    gap: 1rem;
+}

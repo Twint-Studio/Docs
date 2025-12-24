@@ -1,7 +1,7 @@
 const hljs = require("highlight.js");
 const cheerio = require("cheerio");
 const marked = require("marked");
-const yaml = require("js-yaml");
+const { YAML } = require("bun");
 const path = require("path");
 const fs = require("fs");
 
@@ -56,7 +56,6 @@ function generateHtmlOutput(file, html) {
 }
 
 function extensionTOC(markdown) {
-    const codeBlockRegex = /(```.*?```|`[^`]*`)/gs;
     const headingRegex = /^(#+)\s+(.*)$/gm;
 
     function generateTOC(markdown) {
@@ -77,11 +76,7 @@ function extensionTOC(markdown) {
         return tocMarkdown;
     }
 
-    return markdown.replace(/\[TOC\]/gi, "[TOC]")
-        .replace(/\[TOC\]/g, (match, offset, string) => {
-            const isInCodeBlock = codeBlockRegex.test(string.slice(0, offset));
-            return isInCodeBlock ? generateTOC(markdown) : match;
-        });
+    return markdown.replace(/\[TOC\]/gi, () => generateTOC(markdown));
 }
 
 function extensionFolder(markdown) {
@@ -105,9 +100,29 @@ function extensionFolder(markdown) {
     return markdown
 }
 
+function extensionCard(markdown) {
+    return markdown.replace(/\[CARD(?::([^\]]+))?\]([\s\S]*?)\[\/CARD\]/g, (_, variant, content) => {
+        const variantClass = variant ? ` card-${variant}` : '';
+        const titleMatch = content.match(/^#+\s+(.+?)$/m);
+
+        if (titleMatch) {
+            const remainingContent = content.replace(titleMatch[0], '').trim();
+            return `<div class="card${variantClass}"><div class="card-title">${titleMatch[1]}</div>${remainingContent ? `<div class="card-content">\n\n${remainingContent}\n\n</div>` : ''}</div>`;
+        }
+
+        return `<div class="card${variantClass}"><div class="card-content">\n\n${content.trim()}\n\n</div></div>`;
+    });
+}
+
+function extensionCardsGrid(markdown) {
+    return markdown.replace(/\[CARDS-GRID\]([\s\S]*?)\[\/CARDS-GRID\]/g, (_, content) => `<div class="cards-grid">\n\n${content}\n\n</div>`);
+}
+
 function extensions(markdown) {
     markdown = extensionTOC(markdown);
     markdown = extensionFolder(markdown);
+    markdown = extensionCardsGrid(markdown);
+    markdown = extensionCard(markdown);
 
     return markdown;
 }
@@ -148,7 +163,7 @@ for (const file of documents) {
     const content = fs.readFileSync(filePath, "utf-8");
 
     const { metadata, body } = extractMetadataAndContent(content);
-    const parsedMetadata = yaml.load(metadata) || {};
+    const parsedMetadata = YAML.parse(metadata) || {};
 
     let html = layout;
 

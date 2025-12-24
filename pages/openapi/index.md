@@ -6,7 +6,6 @@ name: OpenAPI
 
 OpenAPI is a re-implementation of the [API](https://api.serversmp.xyz) while having a developer friendly mindset and independence from the closed source version.
 
-<!-- `[TOC]` -->
 [TOC]
 
 ## Endpoints

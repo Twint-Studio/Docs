@@ -1,25 +1,24 @@
 {
   "name": "docs",
   "version": "1.0.0",
-  "description": "Documentation for projects",
-  "main": "index.js",
-  "scripts": {
-    "start": "node index.js"
-  },
+  "author": "Prince527",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/twint-studio/Docs.git"
   },
-  "author": "Prince527",
-  "license": "AGPL-3.0",
-  "bugs": {
-    "url": "https://github.com/twint-studio/Docs/issues"
-  },
-  "homepage": "https://github.com/twint-studio/Docs#readme",
+  "main": "index.js",
   "dependencies": {
     "cheerio": "^1.0.0-rc.12",
     "highlight.js": "^11.9.0",
-    "js-yaml": "^4.1.0",
     "marked": "^11.1.1"
+  },
+  "bugs": {
+    "url": "https://github.com/twint-studio/Docs/issues"
+  },
+  "description": "Documentation for projects",
+  "homepage": "https://github.com/twint-studio/Docs#readme",
+  "license": "AGPL-3.0",
+  "scripts": {
+    "start": "bun index.js"
   }
 }
