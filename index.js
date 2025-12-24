@@ -57,6 +57,12 @@ function generateHtmlOutput(file, html) {
 
 function extensionTOC(markdown) {
     const headingRegex = /^(#+)\s+(.*)$/gm;
+    
+    const codeBlocks = [];
+    let protected = markdown.replace(/(```[\s\S]*?```|`[^`]+`)/g, (match) => {
+        codeBlocks.push(match);
+        return `__CODE_BLOCK_${codeBlocks.length - 1}__`;
+    });
 
     function generateTOC(markdown) {
         const headings = [];
@@ -76,7 +82,9 @@ function extensionTOC(markdown) {
         return tocMarkdown;
     }
 
-    return markdown.replace(/\[TOC\]/gi, () => generateTOC(markdown));
+    protected = protected.replace(/\[TOC\]/gi, () => generateTOC(markdown));
+
+    return protected.replace(/__CODE_BLOCK_(\d+)__/g, (_, index) => codeBlocks[parseInt(index)]);
 }
 
 function extensionFolder(markdown) {
